@@ -9,3 +9,4 @@ pip install matplotlib
 pip install tornado
 python server.py
 ```
+Also, files in static directory are removed since they are too large.
