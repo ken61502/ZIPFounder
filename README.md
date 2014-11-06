@@ -19,4 +19,5 @@ Static directory includes the following files:
  * tl_2014_us_zcta510.shp.xml
  * tl_2014_us_zcta510.shx
 
+
 3. Please add the Google Map API Key to templates/zipmap.html
