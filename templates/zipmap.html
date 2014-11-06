@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style type="text/css">
+      html, body, #map-canvas { height: 100%; margin: 0; padding: 0;}
+    </style>
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCKKwgeE23irK5dlxKOXvAx-at1kSRX_Wo">
+    </script>
+    <script type="text/javascript">
+        var default_location = new google.maps.LatLng(37.792783,-122.404301);
+        var mapOptions = {
+              center: default_location,
+              mapTypeId: google.maps.MapTypeId.ROADMAP,
+              zoom: 15
+            };
+        var infowindow = new google.maps.InfoWindow({ 
+          content: "94104",
+          size: new google.maps.Size(50,50)
+        });
+
+        var map, zipPolygon, marker, polygonPoints, polygonCoords;
+      function initialize() {
+        map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+        polygonPoints = {{ points }};
+        polygonCoords = [];
+
+        marker = new google.maps.Marker({
+          map: map,
+          draggable: true,
+          animation: google.maps.Animation.DROP,
+          position: default_location,
+          title: "94104"
+        });
+
+        drawPolygon(polygonPoints);
+
+        google.maps.event.addListener(marker, 'dragend', function() {
+          var resp;
+          new_loc = marker.getPosition();
+          resp = httpGet("http://localhost:8888/lat="+new_loc.lat()+"&lng="+new_loc.lng()).split(":");
+          zipPolygon.setMap(null);
+          zipPolygon = null;
+          drawPolygon(JSON.parse(resp[1]));
+          marker.setTitle(resp[0]);
+          infowindow.setContent(resp[0]);
+        });
+        google.maps.event.addListener(marker, 'mouseover', function() {
+          infowindow.open(map, marker);
+        });
+        google.maps.event.addListener(marker, 'mouseout', function() {
+          infowindow.close();
+        });
+      }
+
+      function drawPolygon(points) {
+        polygonCoords = []
+        points.forEach(function(p) {
+          polygonCoords.push(new google.maps.LatLng(p[1], p[0]));
+        });
+
+        // Construct the polygon.
+        zipPolygon = new google.maps.Polygon({
+          paths: polygonCoords,
+          strokeColor: '#FFFF00',
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: '#FFFF00',
+          fillOpacity: 0.35
+        });
+
+        zipPolygon.setMap(map);
+      }
+
+      function httpGet(theUrl) {
+          var xmlHttp = null;
+          xmlHttp = new XMLHttpRequest();
+          xmlHttp.open( "GET", theUrl, false );
+          xmlHttp.send( null );
+          return xmlHttp.responseText;
+      }
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+  </head>
+  <body>
+<div id="map-canvas"></div>
+  </body>
+</html>
